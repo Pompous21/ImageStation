@@ -57,14 +57,14 @@ public class ${table.controllerName} {
     // 删除
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {        // 删除单个 - 根据id
-        if (${table.entityPath}Service.removeById(id)) return Result.success(Constants.CODE_5010);
-        else return Result.error(Constants.CODE_5011);
+        if (${table.entityPath}Service.removeById(id)) return Result.success(Constants.CODE_5100);
+        else return Result.error(Constants.CODE_5101);
     }
 
     @PostMapping("/del/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {     // 批量删除
-        if (${table.entityPath}Service.removeBatchByIds(ids)) return Result.success(Constants.CODE_5010);
-        else return Result.error(Constants.CODE_5011);
+        if (${table.entityPath}Service.removeBatchByIds(ids)) return Result.success(Constants.CODE_5100);
+        else return Result.error(Constants.CODE_5101);
     }
 
     // 查询
@@ -84,7 +84,8 @@ public class ${table.controllerName} {
         QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("id");
         return Result.success(${table.entityPath}Service.page(new Page<>(pageNum, pageSize), queryWrapper));
-        }
     }
+
+}
 
 #end

@@ -1,5 +1,6 @@
 package com.yy.ImageStation.service;
 
+import com.yy.ImageStation.controller.dto.UserDTO;
 import com.yy.ImageStation.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserService extends IService<User> {
 
+    UserDTO login(UserDTO userDTO);
+
+    boolean register(UserDTO userDTO);
 }

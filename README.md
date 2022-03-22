@@ -90,6 +90,15 @@ public class CorsConfig {
 # 开始使用
 
 ## 使用 Mybatis
+
+``` yml
+# In application.yml
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
 逐层调用
 - `.eneity/` 存放实体类
   - JavaSE - Getter and Setter
@@ -127,7 +136,13 @@ public class CorsConfig {
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
     }
+```
 
+``` yml 
+# In application.yml
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 ```
 
 
@@ -281,9 +296,20 @@ public class CodeGenerator {
 此外，要自定义修改生成的模板，可在 `外部库\Maven:com.baomidou:mybatis-plus-generator-3.5.1\mybatis-plus-generator-3.5.1.jar!\templates` 复制一份到 `src/main/resources/templates` 后修改
 
 
+# 安装 hutool
+
+``` xml
+<!--hutool-->
+    <dependency>
+      <groupId>cn.hutool</groupId>
+      <artifactId>hutool-all</artifactId>
+      <version>5.7.22</version>
+    </dependency>
+```
+
 ## 安装和使用 JWT
 
-懒得写了，链接附上
+参考链接附上
 
 [SpringBoot集成JWT实现token验证](https://blog.csdn.net/gjtao1130/article/details/111658060?spm=1001.2014.3001.5502)
 
@@ -296,10 +322,166 @@ public class CodeGenerator {
 ```
 
 需要逐项完成：
-- (不用)自定义注解
-- (提前配置好)用户实体类、及查询service
-- Token生成
-- 拦截器拦截token
-- 注册拦截器
-- 登录Controller
-- 配置全局异常捕获
+
+生成token / 获取用户信息
+``` java
+package com.yy.ImageStation.utils;
+
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.yy.ImageStation.entity.User;
+import com.yy.ImageStation.service.IUserService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+
+// 生成JWT的token
+@Component
+public class TokenUtils {       // 先把这个注册成Springboot的一个Bean
+
+    // 为了后台查询当前用户信息
+    private static IUserService staticUserService;
+
+    @Resource
+    private IUserService userService;       // 再引进来
+
+    @PostConstruct
+    public void setUserService() {
+        staticUserService = userService;        // 并由这个将动态对象转为静态对象
+    }
+
+    /**
+     * 生成Token
+     * @return
+     */
+    public static String genToken(String userId, String sign) {
+        return JWT.create().withAudience(userId) // 将 user id 保存到 token 里面，作为载荷
+                .withExpiresAt(DateUtil.offsetHour(new Date(), 2)) //两小时后token过期
+                .sign(Algorithm.HMAC256(sign)); // 以 password 作为 token 的密钥
+    }
+
+    /**
+     * 获取当前登录的用户信息
+     *
+     */
+    public static User getCurrentUser() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();     // 跟JWTInterceptor.java中的有点像
+            String token = request.getHeader("token");
+
+            if (StrUtil.isNotBlank(token)) {
+                String userId = JWT.decode(token).getAudience().get(0);
+                return staticUserService.getById(Integer.valueOf(userId));
+            }
+        }
+        catch (Exception e) {
+            return null;
+        }
+
+        return null;
+    }
+}
+```
+
+拦截器拦截token
+``` java
+package com.yy.ImageStation.config.interceptor;
+
+import cn.hutool.core.util.StrUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.yy.ImageStation.common.Constants;
+import com.yy.ImageStation.entity.User;
+import com.yy.ImageStation.exception.ServiceException;
+import com.yy.ImageStation.service.IUserService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@Component
+public class JWTInterceptor implements HandlerInterceptor {
+
+    @Resource
+    private IUserService userService;
+
+    @Override
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) {
+        String token = httpServletRequest.getHeader("token");
+        // 如果不是映射到方法直接通过
+        if (!(object instanceof HandlerMethod)) {
+            return true;
+        }
+        // 执行认证
+        if (StrUtil.isBlank(token)) {
+            throw new ServiceException(Constants.CODE_6000, "无token，请重新登陆");
+        }
+        // 获取token中的userId
+        String userId;
+        try {
+            userId = JWT.decode(token).getAudience().get(0);
+        }
+        catch (JWTDecodeException j) {
+            throw new ServiceException(Constants.CODE_6000, "token-id信息验证失败，请重新登陆");
+        }
+        // 根据token中的userId查询数据库
+        User user = userService.getById(userId);
+        if (user == null) {
+            throw new ServiceException(Constants.CODE_6000, "用户不存在，请重新登陆");
+        }
+        // 用户密码加签验证token
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
+        try {
+            jwtVerifier.verify(token);
+        }
+        catch (JWTVerificationException e) {
+            throw new ServiceException(Constants.CODE_6000, "token验证失败，请重新登陆");
+        }
+
+        return true;
+    }
+
+}
+```
+
+注册拦截器
+``` java
+package com.yy.ImageStation.config;
+
+import com.yy.ImageStation.config.interceptor.JWTInterceptor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class InterceptorConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor())
+                .addPathPatterns("/**")    // 拦截所有请求，通过判断token是否合法决定是否需要登录，但要排除登录注册导入导出接口
+                .excludePathPatterns("/user/login", "user/register",
+                        "/swagger-resources", "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**", "/api", "/api-docs", "/api-docs/**");
+    }
+
+    @Bean
+    public JWTInterceptor jwtInterceptor() {
+        return new JWTInterceptor();
+    }
+}
+```
+
