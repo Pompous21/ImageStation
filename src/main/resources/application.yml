@@ -6,5 +6,9 @@ spring:
     password: 123456
 
 Server:
-          ip: localhost
-          port: 9090
+  ip: localhost
+  port: 9090
+
+config:
+  Swagger3:
+    flag: true
