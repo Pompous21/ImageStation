@@ -1,10 +1,13 @@
 package com.yy.ImageStation.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -40,6 +43,7 @@ public class User implements Serializable {
       private String email;
 
       @ApiModelProperty("密码")
+      @JsonIgnore
       private String password;
 
       @ApiModelProperty("创建时间")

@@ -31,6 +31,14 @@ public interface Constants {
     String CODE_5101 = "5101";      // 删除失败
     String CODE_5300 = "5300";      // 查询成功
     String CODE_5301 = "5301";      // 查询失败
+    String CODE_5400 = "5400";      // 上传文件成功
+    String CODE_5401 = "5401";      // 上传文件失败，具体原因保留
+    String CODE_5410 = "5410";      // 删除文件成功
+    String CODE_5411 = "5411";      // 删除文件失败，具体原因保留
+    String CODE_5420 = "5420";      // 批量删除文件成功
+    String CODE_5421 = "5421";      // 批量删除文件失败，具体原因保留
+    String CODE_5430 = "5430";      // 查询文件成功
+    String CODE_5431 = "5431";      // 查询文件失败，具体原因保留
 
     // 6 自定义异常
     String CODE_6000 = "6000";      // 自定义异常
