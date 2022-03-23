@@ -1,5 +1,6 @@
 package com.yy.ImageStation.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
