@@ -35,6 +35,8 @@ public interface Constants {
     String CODE_5401 = "5401";      // 上传文件失败，具体原因保留
     String CODE_5410 = "5410";      // 删除文件成功
     String CODE_5411 = "5411";      // 删除文件失败，具体原因保留
+    String CODE_5412 = "5412";      // 删除文件失败，重复删除
+    String CODE_5413 = "5413";      // 删除文件失败，文件不存在
     String CODE_5420 = "5420";      // 批量删除文件成功
     String CODE_5421 = "5421";      // 批量删除文件失败，具体原因保留
     String CODE_5430 = "5430";      // 查询文件成功

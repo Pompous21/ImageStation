@@ -48,39 +48,19 @@ public class FilesController {
     @Resource
     private IFilesService filesService;
 
-    // 新增、修改
-    @PostMapping
-    public Result save(@RequestBody Files files) {
-        if (filesService.saveOrUpdate(files)) return Result.success(Constants.CODE_5400);
-        else return Result.error(Constants.CODE_5401);
-    }
-
     // 删除
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {        // 删除单个 - 根据id
-        if (filesService.removeById(id)) return Result.success(Constants.CODE_5410);
+        if (filesService.logicalDelete(id) > 0) return Result.success(Constants.CODE_5410);
         else return Result.error(Constants.CODE_5411);
     }
 
     @PostMapping("/del/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {     // 批量删除
-        if (filesService.removeBatchByIds(ids)) return Result.success(Constants.CODE_5420);
+        if (filesService.logicalDeleteBatch(ids) > 0) return Result.success(Constants.CODE_5420);
         else return Result.error(Constants.CODE_5421);
     }
 
-    // 查询
-    @GetMapping
-    public Result findAll() {       // 查询全部
-        return Result.success(Constants.CODE_5430, filesService.list());
-    }
-
-    @GetMapping("/page")
-    public Result findPage(@RequestParam Integer pageNum,
-                        @RequestParam Integer pageSize) {
-        QueryWrapper<Files> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("id");
-        return Result.success(Constants.CODE_5430, filesService.page(new Page<>(pageNum, pageSize), queryWrapper));
-    }
 
     /**
      * 文件上传
@@ -145,6 +125,8 @@ public class FilesController {
      */
     @GetMapping("/{fileUUID}")
     public void download(@PathVariable String fileUUID, HttpServletResponse response) throws IOException {
+        // 后面仍需补充权限检测和删除判断
+
         // 根据UUID获取文件
         File downFile = new File(fileUploadPath + fileUUID);
 
