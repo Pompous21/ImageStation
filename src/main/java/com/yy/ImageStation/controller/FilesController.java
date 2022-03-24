@@ -76,12 +76,11 @@ public class FilesController {
         String type = FileUtil.extName(originalFilename);
         long size = file.getSize();
 
-        // 定义唯一标识码
-        String uuid = IdUtil.fastSimpleUUID();
-        String fileUUid = uuid + StrUtil.DOT + type;
-        File uploadFile = new File(fileUploadPath + fileUUid);
+        // 定义文件唯一标识码
+        String fileUUID = filesService.initUUID(type);
+        File uploadFile = new File(fileUploadPath + fileUUID);
 
-        // 定义基本信息
+        // 定义高级信息
         String url;
         String md5;
 
@@ -101,7 +100,7 @@ public class FilesController {
             uploadFile.delete();
         }
         else {
-            url = "http://" + serverIp + ":" + serverPort + "/files/" + fileUUid;
+            url = "http://" + serverIp + ":" + serverPort + "/files/" + fileUUID;
         }
 
         // 存入数据库
@@ -127,7 +126,7 @@ public class FilesController {
     public void download(@PathVariable String fileUUID, HttpServletResponse response) throws IOException {
         // 后面仍需补充权限检测和删除判断
 
-        // 根据UUID获取文件
+        // 根据fileUUID获取文件
         File downFile = new File(fileUploadPath + fileUUID);
 
         // 设置输出流的格式
@@ -153,6 +152,10 @@ public class FilesController {
         List<Files> filesList = filesService.list(queryWrapper);
         return filesList.size() == 0 ? null : filesList.get(0);
     }
+
+
+
+
 
 }
 

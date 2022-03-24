@@ -19,4 +19,8 @@ public interface IFilesService extends IService<Files> {
 
     int logicalDeleteBatch(List<Integer> ids);
 
+    public String initUUID(String type);
+
+    public String url2fileUUID(String url);
+
 }

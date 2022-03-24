@@ -1,5 +1,7 @@
 package com.yy.ImageStation.service.impl;
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yy.ImageStation.entity.Files;
 import com.yy.ImageStation.mapper.FilesMapper;
@@ -60,6 +62,20 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, Files> implements
             if (logicalDelete(id) > 0) totalDelete++;
         }
         return totalDelete;
+    }
+
+    // 定义唯一标识码
+    public String initUUID(String type) {
+        String uuid = IdUtil.fastSimpleUUID();
+        String fileUUID = uuid + StrUtil.DOT + type;
+        return fileUUID;
+    }
+
+    public String url2fileUUID(String url) {
+        String fileUUID;
+        int startIndex = url.lastIndexOf("/");
+        fileUUID = url.substring(startIndex + 1);
+        return fileUUID;
     }
 
 }
