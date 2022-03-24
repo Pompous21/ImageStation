@@ -1,0 +1,22 @@
+package com.yy.ImageStation.mapper.impl;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+
+public class GetAESFunction {
+
+    public interface ImgDith extends Library {
+
+        // Dll 接口
+        ImgDith INSTANCE = Native.loadLibrary("D:\\_Jinan\\graduation_project\\work_space\\DIP\\ImgDith\\x64\\Release\\ImgDith.dll", ImgDith.class);
+//        ImgDith INSTANCE = Native.loadLibrary("ImgDith.dll", ImgDith.class);
+
+//        public ImgDith Export(String raw, String dithed);
+
+        public int importTest(int testNum);
+
+
+        
+    }
+
+}
