@@ -29,9 +29,6 @@ public class Files implements Serializable {
         @TableId(value = "file_id", type = IdType.AUTO)
       private Long fileId;
 
-      @ApiModelProperty("文件处理前的原生文件的id，没有则是原生文件")
-      private Long originalId;
-
       @ApiModelProperty("文件名")
       private String name;
 

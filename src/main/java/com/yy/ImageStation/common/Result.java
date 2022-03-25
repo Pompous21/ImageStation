@@ -15,6 +15,7 @@ public class Result {
 
     // 成功
 
+
     public static Result success() {
         return new Result(Constants.CODE_5300, "成功", null);
     }

@@ -1,18 +1,14 @@
 package com.yy.ImageStation.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yy.ImageStation.common.Constants;
 import com.yy.ImageStation.common.Result;
+import com.yy.ImageStation.entity.Files;
+import com.yy.ImageStation.service.IFilesService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-
-import com.yy.ImageStation.service.IFilesService;
-import com.yy.ImageStation.entity.Files;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -94,9 +90,8 @@ public class FilesController {
 
         // 操作md5去重
         md5 = SecureUtil.md5(uploadFile);
-        Files dbFiles = getFileByMd5(md5);
-        if (dbFiles != null) {
-            url = dbFiles.getUrl();
+        url = filesService.deduplicateFileByMd5(md5, fileUUID);
+        if (url != null) {
             uploadFile.delete();
         }
         else {
@@ -104,13 +99,7 @@ public class FilesController {
         }
 
         // 存入数据库
-        Files saveFile = new Files();
-        saveFile.setName(originalFilename);
-        saveFile.setType(type);
-        saveFile.setSize(size / 1024);
-        saveFile.setUrl(url);
-        saveFile.setMd5(md5);
-        filesService.save(saveFile);
+        filesService.saveDbFiles(originalFilename, type, size, url, md5);
 
         return url;
 
@@ -141,17 +130,6 @@ public class FilesController {
 
     }
 
-    /**
-     * 通过md5查询文件
-     * @param md5
-     * @return
-     */
-    private Files getFileByMd5(String md5) {
-        QueryWrapper<Files> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("md5", md5);
-        List<Files> filesList = filesService.list(queryWrapper);
-        return filesList.size() == 0 ? null : filesList.get(0);
-    }
 
 
 

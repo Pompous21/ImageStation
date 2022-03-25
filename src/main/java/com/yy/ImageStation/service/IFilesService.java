@@ -3,6 +3,7 @@ package com.yy.ImageStation.service;
 import com.yy.ImageStation.entity.Files;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -15,12 +16,21 @@ import java.util.List;
  */
 public interface IFilesService extends IService<Files> {
 
+    Files getFileByMd5(String md5);
+
     int logicalDelete(Integer id);
 
     int logicalDeleteBatch(List<Integer> ids);
 
-    public String initUUID(String type);
+    String initUUID(String type);
 
-    public String url2fileUUID(String url);
+    String url2fileUUID(String url);
+
+    String fileUUID2type(String fileUUID);
+
+    String deduplicateFileByMd5(String md5, String fileUUID);
+
+    void saveDbFiles(String originalFilename, String type, long size, String url, String md5);
+
 
 }
