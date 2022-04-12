@@ -7,7 +7,7 @@ spring:
 
 Server:
 #  ip: localhost
-  ip: 172.19.5.175
+  ip: localhost
   port: 9090
 
 

@@ -3,7 +3,7 @@ package com.yy.ImageStation.mapper.impl;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
-public class GetAESFunction {
+public class CppFunction {
 
     public interface ImgDith extends Library {
 

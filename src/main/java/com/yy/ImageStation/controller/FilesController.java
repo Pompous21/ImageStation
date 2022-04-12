@@ -68,17 +68,16 @@ public class FilesController {
     public String upload(@RequestParam MultipartFile file) throws IOException {
 
         // 获取文件的基本信息
-        String originalFilename = file.getOriginalFilename();
-        String type = FileUtil.extName(originalFilename);
-        long size = file.getSize();
+        String originalFilename = file.getOriginalFilename();       // 文件名
+        String type = FileUtil.extName(originalFilename);           // 文件类型
+        long size = file.getSize();                                 // 文件大小
 
-        // 定义文件唯一标识码
-        String fileUUID = filesService.initUUID(type);
+        String url;                                                 // 文件 url
+
+        String fileUUID = filesService.initUUID(type);              // 文件唯一标识码
+
+        // 指定文件保存路径
         File uploadFile = new File(fileUploadPath + fileUUID);
-
-        // 定义高级信息
-        String url;
-        String md5;
 
         // 先验证父目录
         if (!uploadFile.getParentFile().exists()) {
@@ -87,19 +86,11 @@ public class FilesController {
 
         // 上传到磁盘
         file.transferTo(uploadFile);
+        url = "http://" + serverIp + ":" + serverPort + "/files/" + fileUUID;
 
-        // 操作md5去重
-        md5 = SecureUtil.md5(uploadFile);
-        url = filesService.deduplicateFileByMd5(md5, fileUUID);
-        if (url != null) {
-            uploadFile.delete();
-        }
-        else {
-            url = "http://" + serverIp + ":" + serverPort + "/files/" + fileUUID;
-        }
 
         // 存入数据库
-        filesService.saveDbFiles(originalFilename, type, size, url, md5);
+        filesService.saveDbFiles(originalFilename, type, size, url);
 
         return url;
 
@@ -113,7 +104,7 @@ public class FilesController {
      */
     @GetMapping("/{fileUUID}")
     public void download(@PathVariable String fileUUID, HttpServletResponse response) throws IOException {
-        // 后面仍需补充权限检测和删除判断
+        // 后面仍需补充权限检测、删除判断和数据库查询
 
         // 根据fileUUID获取文件
         File downFile = new File(fileUploadPath + fileUUID);

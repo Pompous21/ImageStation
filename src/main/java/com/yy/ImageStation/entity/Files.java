@@ -41,9 +41,6 @@ public class Files implements Serializable {
       @ApiModelProperty("文件的下载链接")
       private String url;
 
-      @ApiModelProperty("文件的md5标识码")
-      private String md5;
-
       @ApiModelProperty("文件是否已被删除")
       private Boolean isDeleted;
 

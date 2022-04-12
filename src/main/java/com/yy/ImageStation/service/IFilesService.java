@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface IFilesService extends IService<Files> {
 
-    Files getFileByMd5(String md5);
-
     int logicalDelete(Integer id);
 
     int logicalDeleteBatch(List<Integer> ids);
@@ -28,9 +26,7 @@ public interface IFilesService extends IService<Files> {
 
     String fileUUID2type(String fileUUID);
 
-    String deduplicateFileByMd5(String md5, String fileUUID);
-
-    void saveDbFiles(String originalFilename, String type, long size, String url, String md5);
+    void saveDbFiles(String originalFilename, String type, long size, String url);
 
 
 }
