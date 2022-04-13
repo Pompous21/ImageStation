@@ -1,5 +1,6 @@
 package com.yy.ImageStation.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,9 @@ public class Function implements Serializable {
       @ApiModelProperty("功能名称")
       private String name;
 
+      @ApiModelProperty("访问路径")
+      private String path;
+
       @ApiModelProperty("功能简介")
       private String introduction;
 
@@ -37,6 +41,18 @@ public class Function implements Serializable {
 
       @ApiModelProperty("Tips正文")
       private String text;
+
+      @ApiModelProperty("展示图片1")
+      private String demoImgUrlA;
+
+      @ApiModelProperty("展示图片2")
+      private String demoImgUrlB;
+
+      @ApiModelProperty("展示图片3")
+      private String demoImgUrlC;
+
+      @ApiModelProperty("展示图片4")
+      private String demoImgUrlD;
 
 
 }
